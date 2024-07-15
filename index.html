@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fibonacci Betting Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        #app {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            margin: 20px;
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flip .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        const baseBet = 10;
+        let fibSeq = [1, 1];
+        let currentBetIndex = 0;
+        let winLossHistory = [];
+        let startTime;
+
+        const app = document.getElementById('app');
+
+        function initializeGame() {
+            app.innerHTML = `
+                <div>
+                    <h1>Fibonacci Betting Simulator</h1>
+                    <p>Base Bet: $${baseBet}</p>
+                    <p>Fibonacci Sequence: ${fibSeq}</p>
+                    <button onclick="startRound()">Start Round</button>
+                    <button onclick="toggleHints()">Toggle Hints</button>
+                    <div id="timer"></div>
+                    <div id="bet-amount"></div>
+                </div>
+                <div class="card" id="result-card">
+                    <div class="card-inner">
+                        <div class="card-front">Result</div>
+                        <div class="card-back" id="card-back">Win/Lose</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startRound() {
+            currentBetIndex = 0;
+            winLossHistory = [];
+            nextBet();
+        }
+
+        function nextBet() {
+            if (currentBetIndex >= 4) {
+                alert('Round Complete!');
+                return;
+            }
+
+            startTime = Date.now();
+            document.getElementById('bet-amount').innerHTML = `
+                <p>Current Bet: $${fibSeq[currentBetIndex] * baseBet}</p>
+                <button onclick="submitBet(true)">Win</button>
+                <button onclick="submitBet(false)">Lose</button>
+            `;
+        }
+
+        function submitBet(isWin) {
+            const elapsed = (Date.now() - startTime) / 1000;
+            alert(`Bet submitted in ${elapsed} seconds`);
+
+            winLossHistory.push(isWin);
+            if (isWin) {
+                currentBetIndex++;
+            } else {
+                currentBetIndex = Math.max(0, currentBetIndex - 1);
+            }
+
+            updateCard(isWin);
+            nextBet();
+        }
+
+        function updateCard(isWin) {
+            const resultCard = document.getElementById('result-card');
+            const cardBack = document.getElementById('card-back');
+            cardBack.textContent = isWin ? 'Win' : 'Lose';
+            resultCard.classList.add('flip');
+            setTimeout(() => {
+                resultCard.classList.remove('flip');
+            }, 1000);
+        }
+
+        function toggleHints() {
+            // Implement hint toggling logic
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>
