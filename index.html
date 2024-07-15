@@ -21,13 +21,16 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+            width: 300px;
+            height: 400px;
+            background: linear-gradient(to bottom right, blue, red, orange);
         }
 
         .card {
             display: inline-block;
-            width: 200px;
-            height: 200px;
-            margin: 20px;
+            width: 100%;
+            height: 50%;
             perspective: 1000px;
         }
 
@@ -52,6 +55,7 @@
             justify-content: center;
             align-items: center;
             font-size: 24px;
+            color: white;
         }
 
         .card-back {
@@ -71,37 +75,65 @@
             background: #ccc;
             cursor: not-allowed;
         }
+
+        .inputs {
+            margin: 20px 0;
+        }
+
+        .inputs input {
+            padding: 10px;
+            margin: 5px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .fib-sequence {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .fib-sequence div {
+            margin: 0 5px;
+            font-size: 18px;
+            color: white;
+        }
+
+        #timer {
+            margin-top: 20px;
+            font-size: 18px;
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <div id="app"></div>
+    <div id="app">
+        <div class="card" id="result-card">
+            <div class="card-inner">
+                <div class="card-front">Win/Lose</div>
+                <div class="card-back" id="card-back">Win/Lose</div>
+            </div>
+        </div>
+        <div id="timer">TIMER (MS)</div>
+        <div class="inputs">
+            <input type="number" id="base-bet" placeholder="Base $" />
+            <input type="number" id="total-bet" placeholder="Total $" />
+            <button onclick="submitBet()">Bet</button>
+        </div>
+        <div class="fib-sequence" id="fib-sequence">
+            <div>Fib...</div>
+            <div id="fib-seq">1 1 2</div>
+        </div>
+    </div>
     <script>
-        const baseBet = 10;
         let fibSeq = [1, 1];
         let currentBetIndex = 0;
         let winLossHistory = [];
         let startTime;
 
-        const app = document.getElementById('app');
-
         function initializeGame() {
-            app.innerHTML = `
-                <div>
-                    <h1>Fibonacci Betting Simulator</h1>
-                    <p>Base Bet: $${baseBet}</p>
-                    <p>Fibonacci Sequence: ${fibSeq}</p>
-                    <button onclick="startRound()">Start Round</button>
-                    <button onclick="toggleHints()">Toggle Hints</button>
-                    <div id="timer"></div>
-                    <div id="bet-amount"></div>
-                </div>
-                <div class="card" id="result-card">
-                    <div class="card-inner">
-                        <div class="card-front">Result</div>
-                        <div class="card-back" id="card-back">Win/Lose</div>
-                    </div>
-                </div>
-            `;
+            document.getElementById('fib-seq').innerText = fibSeq.join(' ');
         }
 
         function startRound() {
@@ -111,31 +143,33 @@
         }
 
         function nextBet() {
-            if (currentBetIndex >= 4) {
-                alert('Round Complete!');
+            startTime = Date.now();
+        }
+
+        function submitBet() {
+            const baseBet = parseInt(document.getElementById('base-bet').value);
+            const totalBet = parseInt(document.getElementById('total-bet').value);
+            if (isNaN(baseBet) || isNaN(totalBet)) {
+                alert('Please enter valid numbers for both base bet and total bet.');
                 return;
             }
 
-            startTime = Date.now();
-            document.getElementById('bet-amount').innerHTML = `
-                <p>Current Bet: $${fibSeq[currentBetIndex] * baseBet}</p>
-                <button onclick="submitBet(true)">Win</button>
-                <button onclick="submitBet(false)">Lose</button>
-            `;
-        }
+            const expectedBet = fibSeq[currentBetIndex] * baseBet;
+            const elapsed = (Date.now() - startTime);
 
-        function submitBet(isWin) {
-            const elapsed = (Date.now() - startTime) / 1000;
-            alert(`Bet submitted in ${elapsed} seconds`);
-
-            winLossHistory.push(isWin);
-            if (isWin) {
+            if (totalBet === expectedBet) {
+                alert(`Correct! Bet submitted in ${elapsed} milliseconds.`);
+                updateCard(true);
                 currentBetIndex++;
+                if (currentBetIndex >= fibSeq.length) {
+                    fibSeq.push(fibSeq[fibSeq.length - 1] + fibSeq[fibSeq.length - 2]);
+                    document.getElementById('fib-seq').innerText = fibSeq.join(' ');
+                }
             } else {
-                currentBetIndex = Math.max(0, currentBetIndex - 1);
+                alert(`Incorrect. The correct bet was ${expectedBet}. Try again.`);
+                updateCard(false);
             }
 
-            updateCard(isWin);
             nextBet();
         }
 
@@ -147,10 +181,6 @@
             setTimeout(() => {
                 resultCard.classList.remove('flip');
             }, 1000);
-        }
-
-        function toggleHints() {
-            // Implement hint toggling logic
         }
 
         initializeGame();
