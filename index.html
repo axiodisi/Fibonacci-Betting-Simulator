@@ -100,6 +100,18 @@
             color: white;
         }
 
+        .fib-seq {
+            display: flex;
+            overflow: hidden;
+            width: 180px;
+            justify-content: center;
+        }
+
+        .fib-seq span {
+            width: 60px;
+            text-align: center;
+        }
+
         #timer {
             margin-top: 20px;
             font-size: 18px;
@@ -123,7 +135,7 @@
         </div>
         <div class="fib-sequence" id="fib-sequence">
             <div>$FCS</div>
-            <div id="fib-seq">1 1 2</div>
+            <div class="fib-seq" id="fib-seq"></div>
         </div>
     </div>
     <script>
@@ -185,8 +197,21 @@
         }
 
         function updateFibSeqDisplay() {
-            const displaySeq = fibSeq.slice(Math.max(0, currentBetIndex - 1), currentBetIndex + 2);
-            document.getElementById('fib-seq').innerText = displaySeq.join(' ');
+            const fibSeqDiv = document.getElementById('fib-seq');
+            fibSeqDiv.innerHTML = '';
+
+            const startIdx = Math.max(0, currentBetIndex - 1);
+            const endIdx = Math.min(fibSeq.length, currentBetIndex + 2);
+
+            for (let i = startIdx; i < endIdx; i++) {
+                const span = document.createElement('span');
+                span.textContent = fibSeq[i];
+                if (i === currentBetIndex) {
+                    span.style.fontWeight = 'bold';
+                    span.style.color = 'yellow';
+                }
+                fibSeqDiv.appendChild(span);
+            }
         }
 
         function updateCard(isWin) {
