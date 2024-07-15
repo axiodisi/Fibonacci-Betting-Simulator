@@ -127,19 +127,13 @@
         </div>
     </div>
     <script>
-        let fibSeq = [1, 1];
+        let fibSeq = [1, 1, 2];
         let currentBetIndex = 0;
         let winLossHistory = [];
         let startTime;
 
         function initializeGame() {
             document.getElementById('fib-seq').innerText = fibSeq.join(' ');
-        }
-
-        function startRound() {
-            currentBetIndex = 0;
-            winLossHistory = [];
-            nextBet();
         }
 
         function nextBet() {
@@ -157,17 +151,24 @@
             const expectedBet = fibSeq[currentBetIndex] * baseBet;
             const elapsed = (Date.now() - startTime);
 
+            const isWin = Math.random() < 0.64; // 64% win ratio
+
             if (totalBet === expectedBet) {
-                alert(`Correct! Bet submitted in ${elapsed} milliseconds.`);
-                updateCard(true);
-                currentBetIndex++;
-                if (currentBetIndex >= fibSeq.length) {
-                    fibSeq.push(fibSeq[fibSeq.length - 1] + fibSeq[fibSeq.length - 2]);
-                    document.getElementById('fib-seq').innerText = fibSeq.join(' ');
+                alert(`Bet submitted in ${elapsed} milliseconds.`);
+                updateCard(isWin);
+                if (isWin) {
+                    if (currentBetIndex > 1) {
+                        currentBetIndex -= 2; // Move down in Fibonacci sequence
+                    }
+                } else {
+                    currentBetIndex++; // Move up in Fibonacci sequence
+                    if (currentBetIndex >= fibSeq.length) {
+                        fibSeq.push(fibSeq[fibSeq.length - 1] + fibSeq[fibSeq.length - 2]);
+                        document.getElementById('fib-seq').innerText = fibSeq.join(' ');
+                    }
                 }
             } else {
                 alert(`Incorrect. The correct bet was ${expectedBet}. Try again.`);
-                updateCard(false);
             }
 
             nextBet();
@@ -187,3 +188,4 @@
     </script>
 </body>
 </html>
+s
