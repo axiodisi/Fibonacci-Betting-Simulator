@@ -122,18 +122,22 @@
             <button onclick="submitBet()">Bet</button>
         </div>
         <div class="fib-sequence" id="fib-sequence">
-            <div>Fib...</div>
+            <div>$FCS</div>
             <div id="fib-seq">1 1 2</div>
         </div>
     </div>
     <script>
-        let fibSeq = [1, 1, 2];
-        let currentBetIndex = 0;
+        let fibSeq = [1, 1, 2, 3, 5, 8];
+        let currentBetIndex = 2; // Start at 2 to make it the third Fibonacci number
         let winLossHistory = [];
         let startTime;
 
+        // Predefined win/loss pattern to start the sequence
+        const initialPattern = [false, false, true, false, false, false, true, false, false, false, true];
+        let patternIndex = 0;
+
         function initializeGame() {
-            document.getElementById('fib-seq').innerText = fibSeq.join(' ');
+            updateFibSeqDisplay();
         }
 
         function nextBet() {
@@ -151,7 +155,13 @@
             const expectedBet = fibSeq[currentBetIndex] * baseBet;
             const elapsed = (Date.now() - startTime);
 
-            const isWin = Math.random() < 0.64; // 64% win ratio
+            let isWin;
+            if (patternIndex < initialPattern.length) {
+                isWin = initialPattern[patternIndex];
+                patternIndex++;
+            } else {
+                isWin = Math.random() < 0.64; // 64% win ratio after initial pattern
+            }
 
             if (totalBet === expectedBet) {
                 alert(`Bet submitted in ${elapsed} milliseconds.`);
@@ -164,14 +174,19 @@
                     currentBetIndex++; // Move up in Fibonacci sequence
                     if (currentBetIndex >= fibSeq.length) {
                         fibSeq.push(fibSeq[fibSeq.length - 1] + fibSeq[fibSeq.length - 2]);
-                        document.getElementById('fib-seq').innerText = fibSeq.join(' ');
                     }
                 }
+                updateFibSeqDisplay();
             } else {
                 alert(`Incorrect. The correct bet was ${expectedBet}. Try again.`);
             }
 
             nextBet();
+        }
+
+        function updateFibSeqDisplay() {
+            const displaySeq = fibSeq.slice(Math.max(0, currentBetIndex - 1), currentBetIndex + 2);
+            document.getElementById('fib-seq').innerText = displaySeq.join(' ');
         }
 
         function updateCard(isWin) {
@@ -188,4 +203,3 @@
     </script>
 </body>
 </html>
-s
